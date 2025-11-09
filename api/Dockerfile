@@ -3,6 +3,10 @@ FROM php:8.3-fpm
 # Install system dependencies and PostgreSQL dev libraries
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
     nginx \
     supervisor \
     git \
@@ -10,11 +14,16 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure GD extension
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
 # Install PHP extensions
 RUN docker-php-ext-install \
     pdo \
     pdo_pgsql \
-    pgsql
+    pgsql \
+    gd \
+    zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
