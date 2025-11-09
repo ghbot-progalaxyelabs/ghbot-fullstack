@@ -56,17 +56,24 @@ git clone <repo-url>
 cd ghbot-fullstack
 
 # 2. Configure environment
+# Copy root .env for docker-compose
 cp .env.example .env
-# Edit .env with your settings
+# Edit .env with your database credentials and settings
+
+# Generate API .env file
+cd api
+php generate env
+# Edit api/.env and set DATABASE_USER, DATABASE_PASSWORD, DATABASE_DBNAME
+cd ..
 
 # 3. Start all services
-docker-compose up -d
+docker compose up --build
 
 # 4. Check service health
-docker-compose ps
+docker compose ps
 
 # 5. View logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### Accessing Services
