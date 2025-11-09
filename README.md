@@ -78,10 +78,10 @@ docker compose logs -f
 
 ### Accessing Services
 
-- **Frontend**: http://localhost
-- **API**: http://localhost:8080
-- **Alert Service**: http://localhost:3001
-- **Database**: localhost:5432
+- **Frontend**: http://localhost:4400
+- **API**: http://localhost:4402
+- **Alert Service**: http://localhost:4401
+- **Database**: Internal network only (not exposed)
 
 ## Development
 
