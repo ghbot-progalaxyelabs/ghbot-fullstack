@@ -1,8 +1,17 @@
 FROM php:8.3-fpm-alpine
 
+# Update package cache
+RUN apk update
+
+# Install build dependencies (needed for PHP extensions)
+RUN apk add --no-cache --virtual .build-deps \
+    autoconf \
+    g++ \
+    make \
+    postgresql-dev
+
 # Install system dependencies
 RUN apk add --no-cache \
-    postgresql-dev \
     libpq \
     nginx \
     supervisor \
@@ -15,6 +24,9 @@ RUN docker-php-ext-install \
     pdo \
     pdo_pgsql \
     pgsql
+
+# Remove build dependencies to reduce image size
+RUN apk del .build-deps
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
