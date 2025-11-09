@@ -1,14 +1,14 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.3-fpm
 
-# Install system dependencies
-RUN apk add --no-cache \
-    postgresql-dev \
-    libpq \
+# Install system dependencies and PostgreSQL dev libraries
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
     nginx \
     supervisor \
     git \
     zip \
-    unzip
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
 RUN docker-php-ext-install \
