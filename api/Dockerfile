@@ -39,7 +39,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Configure Nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
-COPY docker/default.conf /etc/nginx/http.d/default.conf
+COPY docker/default.conf /etc/nginx/conf.d/default.conf
 
 # Configure PHP-FPM
 RUN echo "clear_env = no" >> /usr/local/etc/php-fpm.d/www.conf
