@@ -2,7 +2,6 @@ import { Component, ElementRef, inject, OnInit, RendererFactory2, ViewChild } fr
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { AuthService } from './services/auth.service';
-import { BsDropdownToggleDirective, BsDropdownMenuDirective, BsDropdownDirective } from 'ngx-bootstrap/dropdown'
 import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { SelectWebsiteModalComponent } from './components/select-website-modal/select-website-modal.component';
 
@@ -12,7 +11,7 @@ declare const google: any; // Declare the google object
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
-    imports: [RouterOutlet, RouterLink, UpperCasePipe, BsDropdownDirective, BsDropdownToggleDirective, BsDropdownMenuDirective]
+    imports: [RouterOutlet, RouterLink, UpperCasePipe]
 })
 export class AppComponent implements OnInit {
     title = 'Web Meteor'

@@ -49,7 +49,7 @@ export class Website {
     // name: string
     // url: string
     // type: WebsiteType
-    readonly id: string
+    id: string
     pages: WebsitePage[] = []
 
     private logo = ''
