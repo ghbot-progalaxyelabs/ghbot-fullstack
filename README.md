@@ -47,6 +47,7 @@ A complete Docker-based website builder platform with StoneScriptPHP backend, An
 ### Prerequisites
 - Docker & Docker Compose
 - Git
+- PHP 8.3+ (for generating API client locally)
 
 ### Setup
 
@@ -66,15 +67,33 @@ php generate env
 # Edit api/.env and set DATABASE_USER, DATABASE_PASSWORD, DATABASE_DBNAME
 cd ..
 
-# 3. Start all services
-docker compose up --build
+# 3. Build containers in correct order
+./build.sh
 
-# 4. Check service health
+# 4. Start all services
+docker compose up
+
+# 5. Check service health
 docker compose ps
 
-# 5. View logs
+# 6. View logs
 docker compose logs -f
 ```
+
+### Build Order
+
+The build script (`build.sh`) ensures containers are built in the correct order:
+
+1. **Generate API Client** - Creates TypeScript client from PHP routes
+2. **Pull Database Image** - PostgreSQL 16
+3. **Build API Container** - PHP backend with StoneScriptPHP
+4. **Build Alert Service** - Socket.IO notification server
+5. **Build WWW Container** - Angular frontend (requires api-client from step 1)
+
+**Why build order matters:**
+- The `www` container needs the `api-client` package during build
+- The `api-client` is generated from the PHP backend routes
+- Building in order ensures all dependencies are available
 
 ### Accessing Services
 
@@ -96,13 +115,21 @@ php generate route post /users
 # api/src/App/DTO/UsersRequest.php
 # api/src/App/DTO/UsersResponse.php
 
-# Generate TypeScript client
-php generate client
+# Generate TypeScript client (IMPORTANT: Do this after any route/DTO changes!)
+php generate client --output=../www/api-client
 
-# Install client in frontend
-cd ../www
-npm install file:../api/client
+# Rebuild frontend container to use updated client
+cd ..
+docker compose build www
+docker compose restart www
 ```
+
+**When to regenerate the API client:**
+- After adding/modifying/removing routes
+- After changing Request/Response DTO properties
+- After changing DTO types or making fields optional/required
+
+The TypeScript client provides full type safety between frontend and backend.
 
 ### Frontend Development
 

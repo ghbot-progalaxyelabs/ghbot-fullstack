@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
+COPY api-client ./api-client
+
 RUN npm install
 
 COPY . .
