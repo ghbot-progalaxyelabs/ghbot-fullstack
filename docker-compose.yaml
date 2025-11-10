@@ -85,6 +85,7 @@ services:
     volumes:
       - ./www:/app
       - /app/node_modules
+      - /app/api-client
     depends_on:
       - api
       - alert
