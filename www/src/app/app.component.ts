@@ -3,7 +3,9 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
+import { BsDropdownDirective, BsDropdownMenuDirective, BsDropdownToggleDirective } from 'ngx-bootstrap/dropdown';
 import { SelectWebsiteModalComponent } from './components/select-website-modal/select-website-modal.component';
+import { environment } from '../environments/environment';
 
 declare const google: any; // Declare the google object
 
@@ -11,7 +13,7 @@ declare const google: any; // Declare the google object
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
-    imports: [RouterOutlet, RouterLink, UpperCasePipe]
+    imports: [RouterOutlet, RouterLink, UpperCasePipe, BsDropdownDirective, BsDropdownMenuDirective, BsDropdownToggleDirective]
 })
 export class AppComponent implements OnInit {
     title = 'Web Meteor'
@@ -78,26 +80,35 @@ export class AppComponent implements OnInit {
     }
 
     verifyToken(token: string): void {
-        fetch('http://localhost:9100/access/signin', {
+        fetch(`${environment.apiUrl}/auth/google-signin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token }),
+            body: JSON.stringify({ googleToken: token }),
         })
             .then((response) => response.json())
             .then((data) => {
                 console.log('Backend verification response:', data);
-                // Handle the response from your backend (e.g., store user data)
+                // Store the JWT token and user data
+                if (data.token) {
+                    localStorage.setItem('authToken', data.token);
+                    this.auth.setUserData(data.user);
+                }
             })
             .catch((error) => {
                 console.error('Error verifying token:', error);
+                this.auth.status.next(false);
             });
     }
 
     signOut() {
-        google.accounts.id.disableAutoSelect()
-        this.googleSigninButtonRendered = false
+        google.accounts.id.disableAutoSelect();
+        this.googleSigninButtonRendered = false;
+        this.auth.status.next(false);
+        this.auth.clearUserData();
+        localStorage.removeItem('authToken');
+        console.log('User signed out');
     }
 
     onDropdownShown() {
