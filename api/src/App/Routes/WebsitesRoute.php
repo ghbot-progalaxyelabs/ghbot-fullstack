@@ -5,6 +5,7 @@ namespace App\Routes;
 use Framework\IRouteHandler;
 use Framework\ApiResponse;
 use Framework\Database;
+use Framework\Middleware\AuthMiddleware;
 use App\Contracts\IWebsitesRoute;
 use App\DTO\WebsitesRequest;
 use App\DTO\WebsitesResponse;
@@ -25,11 +26,16 @@ class WebsitesRoute implements IRouteHandler, IWebsitesRoute
 
     public function process(): ApiResponse
     {
-        // Build request DTO from input
+        // Issue #6: Protect website creation route with authentication
+        // Require authentication and get user ID from JWT
+        $headers = getallheaders();
+        $authenticatedUserId = AuthMiddleware::requireAuth($headers);
+
+        // Build request DTO from input (use authenticated user ID, not from request body)
         $request = new WebsitesRequest(
             name: $this->name,
             type: $this->type,
-            userId: $this->userId
+            userId: $authenticatedUserId  // Use authenticated user ID
         );
 
         $response = $this->execute($request);

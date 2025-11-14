@@ -5,6 +5,7 @@ namespace App\Routes;
 use Framework\IRouteHandler;
 use Framework\ApiResponse;
 use Framework\Database;
+use Framework\Middleware\AuthMiddleware;
 use App\Contracts\IUpdateWebsiteRoute;
 use App\DTO\UpdateWebsiteRequest;
 use App\DTO\UpdateWebsiteResponse;
@@ -26,6 +27,10 @@ class UpdateWebsiteRoute implements IRouteHandler, IUpdateWebsiteRoute
 
     public function process(): ApiResponse
     {
+        // Issue #6: Protect PUT /websites/:id with authentication
+        $headers = getallheaders();
+        $authenticatedUserId = AuthMiddleware::requireAuth($headers);
+
         // Convert content and settings to objects if they're arrays
         $content = is_array($this->content) ? (object)$this->content : $this->content;
         $settings = is_array($this->settings) ? (object)$this->settings : $this->settings;
@@ -36,7 +41,7 @@ class UpdateWebsiteRoute implements IRouteHandler, IUpdateWebsiteRoute
             name: $this->name,
             content: $content,
             settings: $settings,
-            userId: $this->userId
+            userId: $authenticatedUserId  // Use authenticated user ID
         );
 
         $response = $this->execute($request);
