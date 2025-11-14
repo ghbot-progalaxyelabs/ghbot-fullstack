@@ -1,0 +1,38 @@
+{
+  "environment": "staging",
+  "projectPath": "/datadisk0/projects/ghbot-fullstack",
+  "branch": "staging",
+  "queueFile": "/home/azureuser/deploy/staging/queue.txt",
+  "logFile": "/home/azureuser/deploy/staging/deployment.log",
+  "webhookSecret": "95c52f15fd455f1b250644d127a7db2c58cdbec3462a5c832e66696e3bbe61bd",
+  "deploymentScript": "/datadisk0/projects/ghbot-fullstack/deploy.sh",
+  "healthCheck": {
+    "enabled": true,
+    "endpoints": [
+      "https://staging.webmeteor.in",
+      "https://staging-api.webmeteor.in/health",
+      "https://staging-alert.webmeteor.in/health"
+    ],
+    "timeout": 30,
+    "retries": 3
+  },
+  "notifications": {
+    "enabled": false,
+    "email": "",
+    "slack": ""
+  },
+  "backup": {
+    "enabled": true,
+    "beforeDeploy": true,
+    "backupPath": "/home/azureuser/backups/staging"
+  },
+  "containers": {
+    "restart": true,
+    "services": [
+      "db",
+      "api",
+      "alert",
+      "www"
+    ]
+  }
+}

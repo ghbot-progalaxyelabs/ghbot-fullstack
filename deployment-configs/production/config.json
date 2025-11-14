@@ -1,0 +1,38 @@
+{
+  "environment": "production",
+  "projectPath": "/datadisk0/projects/ghbot-fullstack-production",
+  "branch": "prod",
+  "queueFile": "/home/azureuser/deploy/production/queue.txt",
+  "logFile": "/home/azureuser/deploy/production/deployment.log",
+  "webhookSecret": "d74933d86c8d5f54d8a92cc4c9512f26e81d6642c404f6a10140e1a15a96af91",
+  "deploymentScript": "/datadisk0/projects/ghbot-fullstack-production/deploy.sh",
+  "healthCheck": {
+    "enabled": true,
+    "endpoints": [
+      "https://www.webmeteor.in",
+      "https://api.webmeteor.in/health",
+      "https://alert.webmeteor.in/health"
+    ],
+    "timeout": 30,
+    "retries": 3
+  },
+  "notifications": {
+    "enabled": true,
+    "email": "",
+    "slack": ""
+  },
+  "backup": {
+    "enabled": true,
+    "beforeDeploy": true,
+    "backupPath": "/home/azureuser/backups/production"
+  },
+  "containers": {
+    "restart": true,
+    "services": [
+      "db",
+      "api",
+      "alert",
+      "www"
+    ]
+  }
+}
