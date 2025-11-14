@@ -40,6 +40,7 @@ api/composer.lock
 
 # Database
 *.sql
+!api/database/migrations/*.sql
 *.sqlite
 postgres_data/
 

@@ -5,6 +5,7 @@ namespace App\Routes;
 use Framework\IRouteHandler;
 use Framework\ApiResponse;
 use Framework\Database;
+use Framework\Middleware\AuthMiddleware;
 use App\Contracts\IGetWebsiteRoute;
 use App\DTO\GetWebsiteRequest;
 use App\DTO\GetWebsiteResponse;
@@ -23,10 +24,14 @@ class GetWebsiteRoute implements IRouteHandler, IGetWebsiteRoute
 
     public function process(): ApiResponse
     {
+        // Issue #6: Protect GET /websites/:id with authentication
+        $headers = getallheaders();
+        $authenticatedUserId = AuthMiddleware::requireAuth($headers);
+
         // Build request DTO from input
         $request = new GetWebsiteRequest(
             id: $this->id,
-            userId: $this->userId
+            userId: $authenticatedUserId  // Use authenticated user ID
         );
 
         $response = $this->execute($request);
