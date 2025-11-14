@@ -1,5 +1,24 @@
 {
-  "locks": [],
+  "locks": [
+    {
+      "id": "lock-1763120620-de7827c0",
+      "developer": "Claude (AI Assistant)",
+      "issue": "Issues #1-6: Authentication System",
+      "issueNumber": "1",
+      "files": [
+        "api/migrations/001_create_users_table.sql",
+        "api/src/App/Routes/AuthRoute.php",
+        "api/Framework/Middleware/AuthMiddleware.php",
+        "www/src/app/services/auth.service.ts",
+        "api/src/App/DTO/GoogleSigninRequest.php",
+        "api/src/App/DTO/GoogleSigninResponse.php"
+      ],
+      "status": "Starting work",
+      "lockedAt": "2025-11-14T11:43:40Z",
+      "estimatedCompletion": "",
+      "branch": "feature/authentication-system"
+    }
+  ],
   "version": "1.0.0",
-  "lastUpdated": ""
+  "lastUpdated": "2025-11-14T11:43:40Z"
 }
