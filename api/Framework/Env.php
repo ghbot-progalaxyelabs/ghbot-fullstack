@@ -22,6 +22,8 @@ class Env
     public $ZEPTOMAIL_SENDER_NAME;
     public $ZEPTOMAIL_SEND_MAIL_TOKEN;
 
+    public $GITHUB_WEBHOOK_SECRET;
+
     /**
      * Define the environment variable schema
      * Each entry contains: type, required, default, and description
@@ -98,6 +100,12 @@ class Env
                 'required' => false,
                 'default' => null,
                 'description' => 'ZeptoMail API token'
+            ],
+            'GITHUB_WEBHOOK_SECRET' => [
+                'type' => 'string',
+                'required' => true,
+                'default' => null,
+                'description' => 'GitHub webhook secret for signature verification'
             ],
         ];
     }
