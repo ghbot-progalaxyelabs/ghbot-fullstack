@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    container_name: webmeteor-db
+    container_name: webmeteor-staging-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -22,7 +22,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: webmeteor-api
+    container_name: webmeteor-staging-api
     restart: unless-stopped
     environment:
       DB_HOST: db
@@ -61,7 +61,7 @@ services:
     build:
       context: ./alert
       dockerfile: Dockerfile
-    container_name: webmeteor-alert
+    container_name: webmeteor-staging-alert
     restart: unless-stopped
     environment:
       ALERT_PORT: 3001
@@ -93,7 +93,7 @@ services:
     build:
       context: ./www
       dockerfile: Dockerfile
-    container_name: webmeteor-www
+    container_name: webmeteor-staging-www
     restart: unless-stopped
     environment:
       API_URL: ${API_URL}
