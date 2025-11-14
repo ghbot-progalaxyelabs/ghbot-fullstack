@@ -210,6 +210,50 @@ class PostRequestParser extends RequestParser
     }
 }
 
+class PutRequestParser extends RequestParser
+{
+    public function extract_input(): array
+    {
+        $content_type = $_SERVER['CONTENT_TYPE'] ?? '';
+
+        // Extract media type (before semicolon) to handle charset parameters
+        // e.g., "application/json; charset=utf-8" -> "application/json"
+        $media_type = explode(';', $content_type)[0];
+        $media_type = trim($media_type);
+
+        if ($media_type !== 'application/json') {
+            $this->error = 'unsupported_media_type';
+            log_debug("Unsupported Content-Type: {$content_type}. Expected application/json");
+            return [];
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if ($input === null) {
+            $this->error = 'input not valid json';
+            log_debug($this->error);
+            return [];
+        }
+
+        return $input;
+    }
+
+    public function identify_route(): string
+    {
+        $match = RouteMatcher::match($this->routes['PUT'] ?? [], $this->request_path);
+
+        // Store extracted route parameters for use in _process()
+        $this->route_params = $match['params'];
+
+        return $match['handler'] ?? '';
+    }
+
+    public function respond(): ApiResponse
+    {
+        return parent::_process();
+    }
+}
+
 class OptionsRequestParser extends RequestParser
 {
     public function extract_input(): array
@@ -435,6 +479,7 @@ class Router
         $request_parser = match ($request_method) {
             RequestMethod::get => new GetRequestParser(),
             RequestMethod::post => new PostRequestParser(),
+            RequestMethod::put => new PutRequestParser(),
             RequestMethod::options => new OptionsRequestParser(),
             default => new NullRequestParser()
         };
