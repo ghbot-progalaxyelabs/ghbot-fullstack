@@ -33,6 +33,43 @@ export class WebsiteSection {
             this.element.classList.remove('show-grid-lines')
         }
     }
+
+    /**
+     * Serialize section to JSON
+     * Converts HTMLElement to HTML string for storage
+     */
+    toJSON(): any {
+        return {
+            id: this.id,
+            name: this.name,
+            properties: this.properties,
+            showGridLines: this.showGridLines,
+            html: this.element.outerHTML
+        }
+    }
+
+    /**
+     * Deserialize section from JSON
+     * Recreates HTMLElement from stored HTML string
+     */
+    static fromJSON(data: any, iframeDocument: Document): WebsiteSection {
+        const tempDiv = iframeDocument.createElement('div')
+        tempDiv.innerHTML = data.html
+        const element = tempDiv.firstElementChild as HTMLElement
+
+        const section = new WebsiteSection(data.name, element)
+        section.id = data.id
+        section.properties = data.properties || { background: 'initial' }
+        section.showGridLines = data.showGridLines ?? true
+
+        if (section.showGridLines) {
+            section.element.classList.add('show-grid-lines')
+        } else {
+            section.element.classList.remove('show-grid-lines')
+        }
+
+        return section
+    }
 }
 
 export class WebsitePage {
@@ -41,6 +78,34 @@ export class WebsitePage {
     keywords = ''
     fileName = ''
     sections: WebsiteSection[] = []
+
+    /**
+     * Serialize page to JSON
+     */
+    toJSON(): any {
+        return {
+            title: this.title,
+            description: this.description,
+            keywords: this.keywords,
+            fileName: this.fileName,
+            sections: this.sections.map(section => section.toJSON())
+        }
+    }
+
+    /**
+     * Deserialize page from JSON
+     */
+    static fromJSON(data: any, iframeDocument: Document): WebsitePage {
+        const page = new WebsitePage()
+        page.title = data.title || ''
+        page.description = data.description || ''
+        page.keywords = data.keywords || ''
+        page.fileName = data.fileName || ''
+        page.sections = (data.sections || []).map((sectionData: any) =>
+            WebsiteSection.fromJSON(sectionData, iframeDocument)
+        )
+        return page
+    }
 }
 
 export type WebsiteType = 'portfolio' | 'business' | 'ecommerce' | 'blog' | 'erp' | 'blank'
@@ -169,6 +234,68 @@ export class Website {
             'sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz',
             'anonymous'
         )
+    }
+
+    /**
+     * Serialize website to JSON for saving to backend
+     * Excludes DOM references and Subjects
+     */
+    toJSON(): any {
+        return {
+            id: this.id,
+            name: this.name,
+            type: this.type,
+            url: this.url,
+            pages: this.pages.map(page => page.toJSON()),
+            logo: this.logo,
+            favicon: this.favicon,
+            colors: {
+                colors: this.colors.colors,
+                lastColorIndex: this.colors.lastColorIndex
+            },
+            selectedWebsitePageIndex: this.selectedWebsitePageIndex
+        }
+    }
+
+    /**
+     * Deserialize website from JSON loaded from backend
+     * Recreates Website object with all pages and sections
+     * Note: iframe must be initialized separately via initIFrame()
+     */
+    static fromJSON(data: any, iframeDocument?: Document): Website {
+        const website = new Website(
+            data.name || '',
+            data.type || 'blank',
+            data.url || ''
+        )
+
+        website.id = data.id
+        website.logo = data.logo || ''
+        website.favicon = data.favicon || ''
+
+        if (data.colors) {
+            website.colors.colors = data.colors.colors || ['orange', 'cyan', 'purple', 'yellow']
+            website.colors.lastColorIndex = data.colors.lastColorIndex ?? -1
+        }
+
+        // Clear default page if we have pages to load
+        if (data.pages && data.pages.length > 0 && iframeDocument) {
+            website.pages = data.pages.map((pageData: any) =>
+                WebsitePage.fromJSON(pageData, iframeDocument)
+            )
+
+            // Set active page
+            const activePageIndex = data.selectedWebsitePageIndex ?? 0
+            if (activePageIndex >= 0 && activePageIndex < website.pages.length) {
+                website.selectedWebsitePageIndex = activePageIndex
+                website.activePage = website.pages[activePageIndex]
+            } else {
+                website.selectedWebsitePageIndex = 0
+                website.activePage = website.pages[0]
+            }
+        }
+
+        return website
     }
 }
 
