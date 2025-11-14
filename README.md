@@ -180,6 +180,35 @@ docker-compose exec www npm test
 
 ## Production Deployment
 
+### VM Deployment (Recommended)
+
+For production deployment on Azure VM with Traefik gateway and auto-deployment:
+
+📚 **See comprehensive VM setup documentation**: [docs/vm-setup/](./docs/vm-setup/)
+
+**Key Features:**
+- Apache + Traefik hybrid architecture for zero-downtime deployments
+- Automatic SSL certificates via Let's Encrypt
+- GitHub webhook-triggered deployments
+- Staging and Production environments
+- Dynamic customer site routing with wildcard domains
+- Customer site isolation with dedicated containers and databases
+
+**Quick Links:**
+- [VM Setup Guide](./docs/vm-setup/VM_SETUP.md) - Complete setup instructions
+- [Architecture Overview](./docs/vm-setup/ARCHITECTURE.md) - System architecture details
+- [Customer Sites Implementation](./docs/vm-setup/CUSTOMER_SITES.md) - Customer site management
+- [Implementation Checklist](./docs/vm-setup/TODO.md) - Step-by-step tasks
+
+**Branch Strategy:**
+- `main` → Development/features
+- `staging` → Testing environment (auto-deploys to staging VM)
+- `prod` → Production environment (auto-deploys to production VM)
+
+### Manual Production Deployment
+
+For manual deployment without VM setup:
+
 1. Update `.env` with production values
 2. Generate secure keys for `JWT_SECRET` and `SESSION_SECRET`
 3. Set `APP_ENV=production`
