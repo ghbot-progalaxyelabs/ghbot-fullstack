@@ -56,16 +56,20 @@ A complete Docker-based website builder platform with StoneScriptPHP backend, An
 git clone <repo-url>
 cd ghbot-fullstack
 
-# 2. Configure environment
-# Copy root .env for docker-compose
+# 2. Configure environment (IMPORTANT: Single source of truth!)
+# The root .env file is used by both Docker Compose AND the API
 cp .env.example .env
-# Edit .env with your database credentials and settings
+# Edit .env with your settings:
+# - Database: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+# - Security: JWT_SECRET, SESSION_SECRET, GOOGLE_CLIENT_ID
+# - Ports: API_PORT, WWW_PORT, ALERT_PORT
 
-# Generate API .env file
-cd api
-php generate env
-# Edit api/.env and set DATABASE_USER, DATABASE_PASSWORD, DATABASE_DBNAME
-cd ..
+# Generate secure secrets
+openssl rand -base64 32  # Use for JWT_SECRET
+openssl rand -base64 32  # Use for SESSION_SECRET
+
+# NOTE: No need for api/.env - the API automatically reads root .env!
+# See ENVIRONMENT_SETUP.md for details
 
 # 3. Build containers in correct order
 ./build.sh
