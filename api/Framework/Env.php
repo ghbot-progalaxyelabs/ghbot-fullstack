@@ -23,6 +23,8 @@ class Env
     public $ZEPTOMAIL_SEND_MAIL_TOKEN;
 
     public $GITHUB_WEBHOOK_SECRET;
+    public $JWT_SECRET;
+    public $GOOGLE_CLIENT_ID;
 
     /**
      * Define the environment variable schema
@@ -103,17 +105,62 @@ class Env
             ],
             'GITHUB_WEBHOOK_SECRET' => [
                 'type' => 'string',
-                'required' => true,
+                'required' => false,
                 'default' => null,
                 'description' => 'GitHub webhook secret for signature verification'
+            ],
+            'JWT_SECRET' => [
+                'type' => 'string',
+                'required' => true,
+                'default' => null,
+                'description' => 'Secret key for JWT token signing'
+            ],
+            'GOOGLE_CLIENT_ID' => [
+                'type' => 'string',
+                'required' => false,
+                'default' => null,
+                'description' => 'Google OAuth Client ID'
             ],
         ];
     }
 
+    /**
+     * Map Docker Compose environment variable names to API names
+     * Allows root .env (Docker) and api/.env (local) to coexist
+     *
+     * @param array $env Raw environment variables from .env file
+     * @return array Mapped environment variables
+     */
+    private function mapDockerEnvVars(array $env): array
+    {
+        $mapping = [
+            'DB_HOST' => 'DATABASE_HOST',
+            'DB_PORT' => 'DATABASE_PORT',
+            'DB_USER' => 'DATABASE_USER',
+            'DB_PASSWORD' => 'DATABASE_PASSWORD',
+            'DB_NAME' => 'DATABASE_DBNAME',
+        ];
+
+        foreach ($mapping as $docker_key => $api_key) {
+            if (isset($env[$docker_key]) && !isset($env[$api_key])) {
+                $env[$api_key] = $env[$docker_key];
+            }
+        }
+
+        return $env;
+    }
+
     private function __construct()
     {
-        $env_file_path = ROOT_PATH . DIRECTORY_SEPARATOR . '.env';
-        if (!file_exists($env_file_path)) {
+        // Try root .env first (for Docker environment), then api/.env (for local dev)
+        $root_env_path = dirname(ROOT_PATH) . DIRECTORY_SEPARATOR . '.env';
+        $api_env_path = ROOT_PATH . DIRECTORY_SEPARATOR . '.env';
+
+        if (file_exists($root_env_path)) {
+            $env_file_path = $root_env_path;
+        } elseif (file_exists($api_env_path)) {
+            $env_file_path = $api_env_path;
+        } else {
             $message = 'missing .env file. Run: php Framework/cli/generate-env.php';
             throw new Exception($message);
         }
@@ -123,6 +170,9 @@ class Env
         $type_errors = [];
 
         $env = parse_ini_file($env_file_path);
+
+        // Map Docker Compose env vars (DB_*) to API env vars (DATABASE_*)
+        $env = $this->mapDockerEnvVars($env);
 
         foreach ($schema as $key => $config) {
             if (array_key_exists($key, $env)) {
