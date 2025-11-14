@@ -40,14 +40,14 @@ export class AppComponent implements OnInit {
     private async initGoogleSignin() {
         await this.googleLibLoaded()
         google.accounts.id.initialize({
-            client_id: '108864518050-fjhjlifc56klj8rsmm4r9tmn9p7j632d.apps.googleusercontent.com',
+            client_id: environment.googleClientId,
             callback: this.handleCredentialResponse.bind(this),
             auto_select: false,
             auto_prompt: false,
             cancel_on_tap_outside: true,
         });
 
-        console.log('google signin initialized')
+        console.log('google signin initialized with client ID:', environment.googleClientId)
     }
 
     private async googleLibLoaded(): Promise<void> {

@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:4402'
+  apiUrl: 'http://localhost:4402',
+  googleClientId: 'YOUR_GOOGLE_CLIENT_ID_HERE'  // Replace with your actual Client ID
 };
 
 /*
