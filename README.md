@@ -259,11 +259,38 @@ ghbot-fullstack/
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+### Parallel Development Workflow
+
+When multiple developers work in parallel, follow our coordination workflow to avoid conflicts:
+
+📚 **Quick Start**: [PARALLEL_DEV_QUICKSTART.md](./PARALLEL_DEV_QUICKSTART.md)
+📖 **Full Guide**: [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md)
+
+**Key Tools:**
+```bash
+# Check available work
+./scripts/assign-issue.sh list
+
+# Lock files before working
+./scripts/dev-workflow.sh lock --developer "Your Name" --issue "Issue #12" --files "file1,file2"
+
+# Check lock status
+./scripts/dev-workflow.sh status
+
+# Unlock when done
+./scripts/dev-workflow.sh unlock --lock-id <lock-id>
+```
+
+### Standard Contribution Process
+
+1. Check [issues.md](./issues.md) for available work
+2. Assign yourself using `./scripts/assign-issue.sh assign --issue <num> --developer "Your Name"`
+3. Create a feature branch: `git checkout -b feature/issue-<num>-<description>`
+4. Lock your files using `./scripts/dev-workflow.sh lock`
+5. Make your changes
+6. Commit and push
+7. Create a Pull Request
+8. Release locks using `./scripts/dev-workflow.sh unlock`
 
 ## License
 

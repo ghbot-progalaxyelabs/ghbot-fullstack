@@ -42,3 +42,6 @@ api/composer.lock
 *.sql
 *.sqlite
 postgres_data/
+
+# Development locks - DO NOT IGNORE (track for team coordination)
+# Keep .dev-locks.json in version control so team can see active locks
