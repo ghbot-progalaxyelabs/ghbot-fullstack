@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/playwright:v1.56.1-focal
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Copy api-client source
+COPY api-client ./api-client
+
+# Build api-client first
+WORKDIR /app/api-client
+RUN npm install && npm run build
+
+# Return to app directory and install all dependencies including Playwright
+WORKDIR /app
+RUN npm install
+
+# Copy Playwright configuration and tests
+COPY playwright.config.ts ./
+COPY e2e ./e2e
+
+# Copy necessary source files for type checking
+COPY tsconfig.* ./
+
+# Install Playwright browsers (already included in base image, but ensures latest)
+RUN npx playwright install chromium
+
+# Create directories for test results
+RUN mkdir -p test-results playwright-report
+
+# Run tests by default
+CMD ["npx", "playwright", "test"]

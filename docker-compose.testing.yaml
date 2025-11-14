@@ -1,0 +1,113 @@
+services:
+  db-test:
+    image: postgres:16
+    container_name: webmeteor-db-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-webmeteor_test}
+      POSTGRES_USER: ${DB_USER:-webmeteor}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-webmeteor_test_password}
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./api/database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - webmeteor-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-webmeteor} -d ${DB_NAME:-webmeteor_test}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "127.0.0.1:5433:5432"  # Different port to avoid conflict with dev DB
+
+  api-test:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: webmeteor-api-test
+    restart: unless-stopped
+    environment:
+      DB_HOST: db-test
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-webmeteor_test}
+      DB_USER: ${DB_USER:-webmeteor}
+      DB_PASSWORD: ${DB_PASSWORD:-webmeteor_test_password}
+      API_URL: http://localhost:8000
+      APP_ENV: testing
+      MOCK_AUTH_ENABLED: "true"  # Enable mock authentication for E2E tests
+      JWT_SECRET: ${JWT_SECRET:-test-jwt-secret-key-for-testing-only}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:-test-webhook-secret}
+    ports:
+      - "127.0.0.1:8000:80"
+    volumes:
+      - ./api:/var/www/html
+    depends_on:
+      db-test:
+        condition: service_healthy
+    networks:
+      - webmeteor-test-network
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  www-test:
+    build:
+      context: ./www
+      dockerfile: Dockerfile.testing
+    container_name: webmeteor-www-test
+    restart: unless-stopped
+    environment:
+      API_URL: http://localhost:8000
+      NODE_ENV: testing
+    ports:
+      - "127.0.0.1:4200:4200"
+    volumes:
+      - ./www:/app
+      - /app/node_modules
+      - /app/api-client
+    depends_on:
+      api-test:
+        condition: service_healthy
+    networks:
+      - webmeteor-test-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4200"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run start -- --configuration=testing --host 0.0.0.0 --port 4200
+
+  # Playwright test runner
+  e2e:
+    build:
+      context: ./www
+      dockerfile: Dockerfile.e2e
+    container_name: webmeteor-e2e
+    environment:
+      API_URL: http://api-test
+      WWW_URL: http://www-test:4200
+    volumes:
+      - ./www:/app
+      - /app/node_modules
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    depends_on:
+      www-test:
+        condition: service_healthy
+      api-test:
+        condition: service_healthy
+    networks:
+      - webmeteor-test-network
+    command: npx playwright test
+    profiles:
+      - test  # Only run when explicitly requested
+
+networks:
+  webmeteor-test-network:
+    driver: bridge
+
+volumes:
+  postgres_test_data:
+    driver: local

@@ -34,6 +34,11 @@ www/dist/
 www/.angular/
 www/package-lock.json
 
+# Playwright E2E Tests
+www/playwright-report/
+www/test-results/
+www/.playwright/
+
 # PHP (api)
 api/vendor/
 api/composer.lock
@@ -43,6 +48,7 @@ api/composer.lock
 !api/database/migrations/*.sql
 *.sqlite
 postgres_data/
+postgres_test_data/
 
 # Development locks - DO NOT IGNORE (track for team coordination)
 # Keep .dev-locks.json in version control so team can see active locks

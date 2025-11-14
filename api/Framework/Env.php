@@ -25,6 +25,8 @@ class Env
     public $GITHUB_WEBHOOK_SECRET;
     public $JWT_SECRET;
     public $GOOGLE_CLIENT_ID;
+    public $APP_ENV;
+    public $MOCK_AUTH_ENABLED;
 
     /**
      * Define the environment variable schema
@@ -120,6 +122,18 @@ class Env
                 'required' => false,
                 'default' => null,
                 'description' => 'Google OAuth Client ID'
+            ],
+            'APP_ENV' => [
+                'type' => 'string',
+                'required' => false,
+                'default' => 'development',
+                'description' => 'Application environment (development, testing, production)'
+            ],
+            'MOCK_AUTH_ENABLED' => [
+                'type' => 'bool',
+                'required' => false,
+                'default' => false,
+                'description' => 'Enable mock authentication for testing (bypasses Google OAuth)'
             ],
         ];
     }
