@@ -113,8 +113,8 @@ export const api = {
     return json.data;
   },
 
-  async websites:id(): Promise<GetWebsiteResponse> {
-    const response = await fetch('/websites/:id', {
+  async getWebsiteById(id: string): Promise<GetWebsiteResponse> {
+    const response = await fetch(`/websites/${id}`, {
       method: 'GET',
       headers: getHeaders(),
     });
@@ -142,8 +142,8 @@ export const api = {
     return json.data;
   },
 
-  async putWebsites:id(data: UpdateWebsiteRequest): Promise<UpdateWebsiteResponse> {
-    const response = await fetch('/websites/:id', {
+  async updateWebsiteById(id: string, data: UpdateWebsiteRequest): Promise<UpdateWebsiteResponse> {
+    const response = await fetch(`/websites/${id}`, {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify(data),
