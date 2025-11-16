@@ -84,7 +84,7 @@ services:
       - "traefik.http.routers.production-alert.tls.certresolver=letsencrypt"
       - "traefik.http.services.production-alert.loadbalancer.server.port=3001"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -119,7 +119,7 @@ services:
       - "traefik.http.routers.production-www.tls.certresolver=letsencrypt"
       - "traefik.http.services.production-www.loadbalancer.server.port=4200"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:4200"]
+      test: ["CMD", "curl", "-f", "http://localhost:4200"]
       interval: 30s
       timeout: 10s
       retries: 3
