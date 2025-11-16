@@ -7,6 +7,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # No ports exposed - database is internal to Docker network only
+    # Only api service can access it via docker network
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./api/database/migrations:/docker-entrypoint-initdb.d
@@ -32,6 +34,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       API_URL: ${API_URL}
       APP_ENV: ${APP_ENV:-production}
+    # Ports bound to localhost only (127.0.0.1) - not exposed to internet
+    # External access via Traefik for staging/production
     ports:
       - "127.0.0.1:${API_PORT:-4402}:80"
     volumes:
@@ -67,6 +71,8 @@ services:
       ALERT_PORT: 3001
       WWW_URL: ${WWW_URL}
       NODE_ENV: ${APP_ENV:-production}
+    # Ports bound to localhost only (127.0.0.1) - not exposed to internet
+    # External access via Traefik for staging/production
     ports:
       - "127.0.0.1:${ALERT_PORT:-4401}:3001"
     volumes:
@@ -98,6 +104,8 @@ services:
     environment:
       API_URL: ${API_URL}
       ALERT_URL: ${ALERT_URL}
+    # Ports bound to localhost only (127.0.0.1) - not exposed to internet
+    # External access via Traefik for staging/production
     ports:
       - "127.0.0.1:${WWW_PORT:-4400}:4200"
     volumes:
