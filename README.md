@@ -1,305 +1,315 @@
-# WebMeteor Fullstack
+# WebMeteor - Full-Stack Website Builder
 
-A complete Docker-based website builder platform with StoneScriptPHP backend, Angular frontend, and Socket.IO notifications.
+A complete Docker-based website builder platform enabling users to create professional websites without coding.
 
-## Architecture
+## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    WebMeteor                        │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌────────┐│
-│  │   WWW   │  │   API   │  │ Alert  │  │   DB   ││
-│  │ Angular │◄─┤  PHP    │  │Socket.IO│  │Postgres││
-│  │  :80    │  │  :8080  │  │  :3001 │  │ :5432  ││
-│  └─────────┘  └─────────┘  └─────────┘  └────────┘│
-│                                                     │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│              WebMeteor Platform              │
+├──────────────────────────────────────────────┤
+│                                              │
+│  ┌──────────┐  ┌──────────┐  ┌───────────┐ │
+│  │ Angular  │  │ StoneScript│ │PostgreSQL │ │
+│  │ Frontend │◄─┤  PHP API  │◄┤ Database  │ │
+│  │   www    │  │    api    │  │    db     │ │
+│  └──────────┘  └─────┬─────┘  └───────────┘ │
+│                      │                       │
+│                      ▼                       │
+│              ┌──────────────┐               │
+│              │  Socket.IO   │               │
+│              │    Alert     │               │
+│              └──────────────┘               │
+│                                              │
+└──────────────────────────────────────────────┘
 ```
 
-## Services
+## 📦 Services
 
-### 1. **www** (Frontend)
-- **Tech**: Angular 19
-- **Port**: 80
-- **Purpose**: Website builder UI
-- **Supports**: Portfolio, Business, E-commerce, Blog sites
+| Service | Technology | Port | Purpose |
+|---------|-----------|------|---------|
+| **www** | Angular 19 | 4200 | Website builder UI |
+| **api** | PHP 8.3 + StoneScriptPHP | 80 | Type-safe REST API |
+| **alert** | Node.js + Socket.IO | 3001 | Real-time notifications |
+| **db** | PostgreSQL 16 | 5432 | Data persistence |
 
-### 2. **api** (Backend)
-- **Tech**: StoneScriptPHP (PHP 8.3)
-- **Port**: 8080
-- **Purpose**: RESTful API with type-safe routes
-- **Features**: Auto-generated TypeScript client, DTOs, Interfaces
-
-### 3. **alert** (Notifications)
-- **Tech**: Node.js + Socket.IO
-- **Port**: 3001
-- **Purpose**: Real-time user notifications
-
-### 4. **db** (Database)
-- **Tech**: PostgreSQL 16
-- **Port**: 5432
-- **Purpose**: Data persistence
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Git
-- PHP 8.3+ (for generating API client locally)
+- OpenSSL (for generating secrets)
 
-### Setup
+### Local Development Setup
 
 ```bash
-# 1. Clone the repository
-git clone <repo-url>
+# 1. Clone repository
+git clone git@github.com:ghbot-progalaxyelabs/ghbot-fullstack.git
 cd ghbot-fullstack
 
-# 2. Configure environment (IMPORTANT: Single source of truth!)
-# The root .env file is used by both Docker Compose AND the API
-cp .env.example .env
-# Edit .env with your settings:
-# - Database: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
-# - Security: JWT_SECRET, SESSION_SECRET, GOOGLE_CLIENT_ID
-# - Ports: API_PORT, WWW_PORT, ALERT_PORT
+# 2. Checkout main branch (development)
+git checkout main
 
-# Generate secure secrets
-openssl rand -base64 32  # Use for JWT_SECRET
-openssl rand -base64 32  # Use for SESSION_SECRET
+# 3. Copy environment template
+cp .env.example.main .env
 
-# NOTE: No need for api/.env - the API automatically reads root .env!
-# See ENVIRONMENT_SETUP.md for details
+# 4. Generate secure secrets
+echo "DB_PASSWORD=$(openssl rand -base64 32)"
+echo "JWT_SECRET=$(openssl rand -base64 32)"
+echo "SESSION_SECRET=$(openssl rand -base64 32)"
+echo "GITHUB_WEBHOOK_SECRET=$(openssl rand -hex 32)"
 
-# 3. Build containers in correct order
-./build.sh
+# 5. Edit .env and replace GENERATE_WITH_* placeholders
+nano .env
 
-# 4. Start all services
-docker compose up
+# 6. Create Docker volumes
+docker volume create webmeteor_dev_postgres_data
+docker volume create webmeteor_dev_api_logs
 
-# 5. Check service health
-docker compose ps
+# 7. Build and start services
+docker compose up -d
 
-# 6. View logs
+# 8. View logs
 docker compose logs -f
 ```
 
-### Build Order
-
-The build script (`build.sh`) ensures containers are built in the correct order:
-
-1. **Generate API Client** - Creates TypeScript client from PHP routes
-2. **Pull Database Image** - PostgreSQL 16
-3. **Build API Container** - PHP backend with StoneScriptPHP
-4. **Build Alert Service** - Socket.IO notification server
-5. **Build WWW Container** - Angular frontend (requires api-client from step 1)
-
-**Why build order matters:**
-- The `www` container needs the `api-client` package during build
-- The `api-client` is generated from the PHP backend routes
-- Building in order ensures all dependencies are available
-
-### Accessing Services
+### Access the Application
 
 - **Frontend**: http://localhost:4400
 - **API**: http://localhost:4402
-- **Alert Service**: http://localhost:4401
-- **Database**: Internal network only (not exposed)
+- **API Docs**: http://localhost:4402/docs (if available)
 
-## Development
+## 📚 Documentation
 
-### Backend API Development
+### Primary Guide
+
+**[COMPLETE_WORKFLOW_GUIDE.md](COMPLETE_WORKFLOW_GUIDE.md)** - Everything you need to know:
+- Development workflow
+- Git branching strategy
+- Deployment process
+- Docker management
+- Database operations
+- Testing procedures
+- Troubleshooting
+
+### Additional Documentation
+
+- **[E2E_TESTING_GUIDE.md](E2E_TESTING_GUIDE.md)** - End-to-end testing with Playwright
+- **[TEST_COVERAGE_REPORT.md](TEST_COVERAGE_REPORT.md)** - Test coverage analysis
+
+### Server Documentation (in `/datadisk0/projects/`)
+
+- **[DATABASE_SAFETY_GUIDE.md](../DATABASE_SAFETY_GUIDE.md)** - Backup and restore procedures
+- **[VOLUME_MANAGEMENT.md](../VOLUME_MANAGEMENT.md)** - Docker volume management
+- **[DOCKER_COMPOSE_UNIFIED.md](../DOCKER_COMPOSE_UNIFIED.md)** - Unified docker-compose strategy
+- **[SECURITY_GUIDE.md](../SECURITY_GUIDE.md)** - Environment variables and secrets
+
+## 🔄 Development Workflow
+
+### Daily Development
 
 ```bash
-# Generate a new route
-cd api
-php generate route post /users
+# Start development
+cd /datadisk0/projects/ghbot-fullstack-dev
+git pull origin main
+docker compose up -d
 
-# Edit DTOs
-# api/src/App/DTO/UsersRequest.php
-# api/src/App/DTO/UsersResponse.php
+# Make changes to code...
 
-# Generate TypeScript client (IMPORTANT: Do this after any route/DTO changes!)
-php generate client --output=../www/api-client
-
-# Rebuild frontend container to use updated client
-cd ..
-docker compose build www
-docker compose restart www
+# Commit and push
+git add .
+git commit -m "Your changes"
+git push origin main
 ```
 
-**When to regenerate the API client:**
-- After adding/modifying/removing routes
-- After changing Request/Response DTO properties
-- After changing DTO types or making fields optional/required
+### Deployment Flow
 
-The TypeScript client provides full type safety between frontend and backend.
+```
+main branch (dev) → production branch → staging folder (test) → production folder (live)
+```
 
-### Frontend Development
+See [COMPLETE_WORKFLOW_GUIDE.md](COMPLETE_WORKFLOW_GUIDE.md) for detailed deployment instructions.
 
+## 🏷️ Environment Templates
+
+| Template | Usage | Traefik | Ports |
+|----------|-------|---------|-------|
+| `.env.example.main` | Local development | No | 4400-4402 |
+| `.env.example.staging` | Staging deployment | Yes | 4400-4402 |
+| `.env.example.production` | Production deployment | Yes | 5400-5402 |
+
+## 🧪 Testing
+
+### Unit Tests
+
+**Backend (PHP):**
+```bash
+cd api
+vendor/bin/phpunit
+```
+
+**Frontend (Angular):**
 ```bash
 cd www
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm start
-
-# Build for production
-npm run build
+npm test
 ```
 
-### Alert Service Development
+### E2E Tests
 
 ```bash
-cd alert
-
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
+docker compose -f docker-compose.testing.yaml up -d db-test api-test www-test
+docker compose -f docker-compose.testing.yaml run --rm e2e
+docker compose -f docker-compose.testing.yaml down
 ```
 
-## Database Migrations
+See [E2E_TESTING_GUIDE.md](E2E_TESTING_GUIDE.md) for details.
 
-```bash
-# Run migrations
-docker-compose exec api php generate migrate up
-
-# Check status
-docker-compose exec api php generate migrate status
-```
-
-## Testing
-
-```bash
-# Run PHP tests
-docker-compose exec api vendor/bin/phpunit
-
-# Run Angular tests
-docker-compose exec www npm test
-```
-
-## Production Deployment
-
-### VM Deployment (Recommended)
-
-For production deployment on Azure VM with Traefik gateway and auto-deployment:
-
-📚 **See comprehensive VM setup documentation**: [docs/vm-setup/](./docs/vm-setup/)
-
-**Key Features:**
-- Apache + Traefik hybrid architecture for zero-downtime deployments
-- Automatic SSL certificates via Let's Encrypt
-- GitHub webhook-triggered deployments
-- Staging and Production environments
-- Dynamic customer site routing with wildcard domains
-- Customer site isolation with dedicated containers and databases
-
-**Quick Links:**
-- [VM Setup Guide](./docs/vm-setup/VM_SETUP.md) - Complete setup instructions
-- [Architecture Overview](./docs/vm-setup/ARCHITECTURE.md) - System architecture details
-- [Customer Sites Implementation](./docs/vm-setup/CUSTOMER_SITES.md) - Customer site management
-- [Implementation Checklist](./docs/vm-setup/TODO.md) - Step-by-step tasks
-
-**Branch Strategy:**
-- `main` → Development/features
-- `staging` → Testing environment (auto-deploys to staging VM)
-- `prod` → Production environment (auto-deploys to production VM)
-
-### Manual Production Deployment
-
-For manual deployment without VM setup:
-
-1. Update `.env` with production values
-2. Generate secure keys for `JWT_SECRET` and `SESSION_SECRET`
-3. Set `APP_ENV=production`
-4. Use proper HTTPS configuration
-5. Configure proper CORS origins
-
-```bash
-# Build for production
-docker-compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
-```
-
-## Website Types Supported
-
-1. **Portfolio** - Showcase work, skills, availability
-2. **Business** - Company websites with services/products
-3. **E-commerce** - Online stores with product catalog
-4. **Blog** - Content publishing platform
-
-## Project Structure
+## 🗂️ Project Structure
 
 ```
-ghbot-fullstack/
-├── docker-compose.yaml          # Service orchestration
-├── .env                          # Environment configuration
-├── api/                          # StoneScriptPHP backend
-│   ├── Dockerfile
-│   ├── Framework/               # Core framework
-│   ├── src/App/                 # Application code
-│   │   ├── Routes/              # Route handlers
-│   │   ├── Contracts/           # Interface contracts
-│   │   └── DTO/                 # Data transfer objects
-│   ├── generate                 # CLI tool
-│   └── docker/                  # Docker configs
-├── www/                          # Angular frontend
-│   ├── Dockerfile
+├── www/                          # Angular Frontend
 │   ├── src/app/
-│   │   ├── pages/
-│   │   │   ├── editor/          # Website editor
-│   │   │   └── website-wizard/  # Website type selector
-│   │   └── services/
-│   └── docker/
-├── alert/                        # Socket.IO service
-│   ├── Dockerfile
-│   ├── server.js
-│   └── package.json
-└── README.md                     # This file
+│   │   ├── pages/               # Page components
+│   │   ├── components/          # Reusable components
+│   │   └── services/            # Angular services
+│   └── e2e/                     # Playwright E2E tests
+├── api/                         # PHP Backend
+│   ├── src/App/
+│   │   ├── Routes/             # API endpoints
+│   │   ├── DTO/                # Data transfer objects
+│   │   └── Models/             # Database models
+│   └── database/migrations/    # SQL migrations
+├── alert/                       # Socket.IO Service
+│   └── server.js
+├── docker-compose.yaml          # Main compose file
+├── docker-compose.testing.yaml  # Testing compose file
+└── .env                        # Environment config (not in git)
 ```
 
-## Contributing
+## 🛠️ Common Commands
 
-### Parallel Development Workflow
+### Docker Management
 
-When multiple developers work in parallel, follow our coordination workflow to avoid conflicts:
-
-📚 **Quick Start**: [PARALLEL_DEV_QUICKSTART.md](./PARALLEL_DEV_QUICKSTART.md)
-📖 **Full Guide**: [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md)
-
-**Key Tools:**
 ```bash
-# Check available work
-./scripts/assign-issue.sh list
+# View running containers
+docker compose ps
 
-# Lock files before working
-./scripts/dev-workflow.sh lock --developer "Your Name" --issue "Issue #12" --files "file1,file2"
+# View logs
+docker compose logs -f [service]
 
-# Check lock status
-./scripts/dev-workflow.sh status
+# Restart service
+docker compose restart [service]
 
-# Unlock when done
-./scripts/dev-workflow.sh unlock --lock-id <lock-id>
+# Rebuild after code changes
+docker compose up -d --build
+
+# Stop all services
+docker compose down
 ```
 
-### Standard Contribution Process
+### Database Operations
 
-1. Check [issues.md](./issues.md) for available work
-2. Assign yourself using `./scripts/assign-issue.sh assign --issue <num> --developer "Your Name"`
-3. Create a feature branch: `git checkout -b feature/issue-<num>-<description>`
-4. Lock your files using `./scripts/dev-workflow.sh lock`
-5. Make your changes
-6. Commit and push
-7. Create a Pull Request
-8. Release locks using `./scripts/dev-workflow.sh unlock`
+```bash
+# Backup database
+docker exec webmeteor-dev-db pg_dump -U webmeteor_user -d webmeteor_dev -F c -f /tmp/backup.dump
+docker cp webmeteor-dev-db:/tmp/backup.dump ./backup.dump
 
-## License
+# Restore database
+docker cp ./backup.dump webmeteor-dev-db:/tmp/
+docker exec webmeteor-dev-db pg_restore -U webmeteor_user -d webmeteor_dev -c /tmp/backup.dump
 
-MIT License - See LICENSE file for details
+# Access PostgreSQL shell
+docker exec -it webmeteor-dev-db psql -U webmeteor_user -d webmeteor_dev
+```
 
-## Support
+## 🔐 Security
 
-For issues and questions, please open a GitHub issue.
+- ✅ All `.env` files are excluded from git via `.gitignore`
+- ✅ Secrets are generated using `openssl rand`
+- ✅ Different credentials for dev, staging, and production
+- ✅ JWT-based authentication
+- ✅ CORS properly configured per environment
+
+**Never commit:**
+- `.env` files
+- Database credentials
+- JWT secrets
+- API keys
+
+## 🌍 Deployment Environments
+
+### Development
+- **Location**: `/datadisk0/projects/ghbot-fullstack-dev`
+- **Branch**: `main`
+- **URL**: http://localhost:4400
+- **Purpose**: Local development
+
+### Staging
+- **Location**: `/datadisk0/projects/ghbot-fullstack-staging`
+- **Branch**: `production`
+- **URL**: https://staging.webmeteor.in
+- **Purpose**: Test deployment before production
+
+### Production
+- **Location**: `/datadisk0/projects/ghbot-fullstack-production`
+- **Branch**: `production`
+- **URL**: https://www.webmeteor.in
+- **Purpose**: Live deployment
+
+## 📊 Features
+
+### Website Types Supported
+- 📱 Portfolio websites
+- 💼 Business websites
+- 🛒 E-commerce sites
+- 📝 Blog platforms
+
+### Key Features
+- ✨ Drag-and-drop website editor
+- 🎨 Multiple professional templates
+- 🔄 Real-time content updates
+- 💾 Auto-save functionality
+- 🔒 User authentication (JWT)
+- 📱 Responsive design
+- 🖼️ Image library (Unsplash integration)
+
+## 🤝 Contributing
+
+1. Work on the `main` branch for all development
+2. Follow the git workflow documented in [COMPLETE_WORKFLOW_GUIDE.md](COMPLETE_WORKFLOW_GUIDE.md)
+3. Test locally before pushing
+4. Deployment happens through staging → production
+
+## 📞 Support
+
+- **Documentation**: See [COMPLETE_WORKFLOW_GUIDE.md](COMPLETE_WORKFLOW_GUIDE.md)
+- **Issues**: Check existing issues or create a new one
+- **Testing**: See [E2E_TESTING_GUIDE.md](E2E_TESTING_GUIDE.md)
+
+## 📝 License
+
+[Your License Here]
+
+---
+
+## 🎯 Quick Reference
+
+### First Time Setup
+```bash
+cp .env.example.main .env
+# Generate and add secrets to .env
+docker volume create webmeteor_dev_postgres_data
+docker compose up -d
+```
+
+### Daily Development
+```bash
+git pull origin main
+docker compose up -d
+# ... make changes ...
+git commit -am "description" && git push origin main
+```
+
+### Need Help?
+Read [COMPLETE_WORKFLOW_GUIDE.md](COMPLETE_WORKFLOW_GUIDE.md) - it has everything!
