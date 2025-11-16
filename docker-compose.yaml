@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16
-    container_name: webmeteor-staging-db
+    container_name: webmeteor-${DEPLOY_ENV}-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -22,7 +22,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: webmeteor-staging-api
+    container_name: webmeteor-${DEPLOY_ENV}-api
     restart: unless-stopped
     environment:
       DB_HOST: db
@@ -46,11 +46,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.staging-api.rule=Host(`staging-api.webmeteor.in`)"
-      - "traefik.http.routers.staging-api.entrypoints=websecure"
-      - "traefik.http.routers.staging-api.tls=true"
-      - "traefik.http.routers.staging-api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.staging-api.loadbalancer.server.port=80"
+      - "traefik.http.routers.${TRAEFIK_API_SUBDOMAIN}.rule=Host(`${TRAEFIK_API_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_API_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_API_SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_API_SUBDOMAIN}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${TRAEFIK_API_SUBDOMAIN}.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
@@ -61,7 +61,7 @@ services:
     build:
       context: ./alert
       dockerfile: Dockerfile
-    container_name: webmeteor-staging-alert
+    container_name: webmeteor-${DEPLOY_ENV}-alert
     restart: unless-stopped
     environment:
       ALERT_PORT: 3001
@@ -78,11 +78,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.staging-alert.rule=Host(`staging-alert.webmeteor.in`)"
-      - "traefik.http.routers.staging-alert.entrypoints=websecure"
-      - "traefik.http.routers.staging-alert.tls=true"
-      - "traefik.http.routers.staging-alert.tls.certresolver=letsencrypt"
-      - "traefik.http.services.staging-alert.loadbalancer.server.port=3001"
+      - "traefik.http.routers.${TRAEFIK_ALERT_SUBDOMAIN}.rule=Host(`${TRAEFIK_ALERT_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_ALERT_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_ALERT_SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_ALERT_SUBDOMAIN}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${TRAEFIK_ALERT_SUBDOMAIN}.loadbalancer.server.port=3001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
@@ -93,7 +93,7 @@ services:
     build:
       context: ./www
       dockerfile: Dockerfile
-    container_name: webmeteor-staging-www
+    container_name: webmeteor-${DEPLOY_ENV}-www
     restart: unless-stopped
     environment:
       API_URL: ${API_URL}
@@ -113,11 +113,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-public"
-      - "traefik.http.routers.staging-www.rule=Host(`staging.webmeteor.in`)"
-      - "traefik.http.routers.staging-www.entrypoints=websecure"
-      - "traefik.http.routers.staging-www.tls=true"
-      - "traefik.http.routers.staging-www.tls.certresolver=letsencrypt"
-      - "traefik.http.services.staging-www.loadbalancer.server.port=4200"
+      - "traefik.http.routers.${TRAEFIK_WWW_SUBDOMAIN}.rule=Host(`${TRAEFIK_WWW_DOMAIN}`)"
+      - "traefik.http.routers.${TRAEFIK_WWW_SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.routers.${TRAEFIK_WWW_SUBDOMAIN}.tls=true"
+      - "traefik.http.routers.${TRAEFIK_WWW_SUBDOMAIN}.tls.certresolver=letsencrypt"
+      - "traefik.http.services.${TRAEFIK_WWW_SUBDOMAIN}.loadbalancer.server.port=4200"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4200"]
       interval: 30s
@@ -126,12 +126,15 @@ services:
 
 networks:
   webmeteor-network:
+    name: ${DOCKER_NETWORK_NAME}
     driver: bridge
   traefik-public:
     external: true
 
 volumes:
   postgres_data:
-    driver: local
+    name: ${POSTGRES_VOLUME_NAME}
+    external: true
   api_logs:
-    driver: local
+    name: ${API_LOGS_VOLUME_NAME}
+    external: true
